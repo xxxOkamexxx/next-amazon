@@ -50,18 +50,26 @@ export default function useCartService() {
         })
     },
     decrease: (item: OrderItem) => {
-      const exist = items.find((x) => x.slug === item.slug)
-      if(!exist) return
-      const updateCartItems = 
-        exist.qty === 1
-          ? items.filter((x: OrderItem) => x.slug !== item.slug)
-          : items.map((x) => (item.slug ? {...exist, qty: exist.qty - 1} : x))
-      const { itemsPrice, shippingPrice, taxPrice, totalPrice } = 
+      const updateCartItems = items.map((x: OrderItem) => {
+        if(x.slug === item.slug){
+          if(x.qty === 1) {
+            return null;
+          } else {
+            return {...x, qty: x.qty - 1};
+          }
+        }
+        return x;
+      }).filter((x: OrderItem | null) => x !== null)
+      const {
+        itemsPrice, 
+        shippingPrice,
+        taxPrice,
+        totalPrice
+      } =
       calcPrice(updateCartItems)
       cartStore.setState({
         items: updateCartItems,
         itemsPrice,
-        shippingPrice,
         taxPrice,
         totalPrice,
       })
